@@ -22,29 +22,45 @@ type
 
  Almacenado = file of RegJugadores;
 
+
+
  const
    ubicacion = ('Jugadores.dat');
    ubicacion2 = ('Reporte.dat');{ubicacion del archivo}
    pared = 9;
 
 var
-  Recorrer,x,y,Tope_Matriz,velocidad,linea,contador,SumaP,NumFig,j:integer;
 
-  MatrizPrincipal: array[1..12, 1..12] of integer; // Declaramos una matriz del campo de juego 12x12
+  // Arrays
+
+  MatrizPrincipal: array[1..12,1..12] of integer;  // Declaramos una matriz del campo de juego 12x12
   FigElegida: array[1..4] of integer;             // Figuras escogidas por usuario
-  rango_azar: array[1..1000] of integer;         // Declaramos una matriz aleatoria para crear una secuencia numérica de la apariencia de las formas, para determinar la siguiente forma.
+  rango_azar: array[1..1000] of integer;         // Declaramos una matriz aleatoria para crear una secuencia para las formas de figuras
 
-  Contador_Figuras,i:integer;    // Contador de las figuras caídas
-  Puntos:integer;               // Guardar el resultado del juego (puntos del juego)
-  minutos,segundos:integer;
-  nro_mov:integer;            // Numero de movimientos y escoger en el programa
-  mod_mov,tiempo:boolean;   // Activar movimientos en el cuerpo del programa y tiempo
-  jugadores:almacenado;    // Variables de registro de usuario
-  dato:RegJugadores;      // Variables de registro de usuario
 
+  // Integers
+  Recorrer:integer;                 // Elemento que recorre la matriz y rellena
+  x,y:integer;                     // Coordenadas de aparicion de fig, recorrido de la matriz
+  Tope_Matriz:integer;            // Tope De La Matriz, determina si termina el juego si hay una presencia de una figura
+  velocidad,linea:integer;       // Velocidad del juego, aumenta con cada linea completada
+  NumFig:integer;               // Numero al azar de figura
+  Contador_Figuras,i:integer;  // Contador de las figuras caídas
+  Puntos:integer;             // Guardar el resultado del juego (puntos del juego)
+  minutos,segundos:integer;  // Tiempo que se visualiza en pantalla
+  nro_mov:integer;          // Numero de movimientos y escoger en el programa
+
+  // Booleans
+  mod_mov,tiempo:boolean;  // Activar movimientos en el cuerpo del programa y tiempo
   datoscorrectos:boolean;
+
+  // Registros
+
+  jugadores:almacenado;   // Variables de registro de usuario
+  dato:RegJugadores;     // Variables de registro de usuario
   orden:top;
   reporte:file of top;
+
+  //Strings
   auxNombre: string[80];
 
 FUNCTION Cifrado(texto:string):string;     {cifrado}
@@ -325,7 +341,7 @@ procedure InicioDeSesion(var datosCorrectos:boolean);
             end;
         end;
       close(jugadores);
-   end;
+End;
 procedure escoger;
  type arreglo=array[1..8] of boolean;
   var
@@ -1011,6 +1027,7 @@ begin
    else
      begin
         ordenaarchivos;
+        tabla:=false;
         Top5(tabla);
         if tabla=false then
           begin
@@ -1029,12 +1046,12 @@ begin
      end;
   end;
 procedure CalculoPuntaje;
-var b,c,fila:integer;
+var b,c,fila,SumaP,contador:integer;
 begin
   for y:=11 downto 2 do // Comprobando filas llenas
      begin // Comienza a verificar las filas llenas
       fila:=0;
-
+      SumaP:=0;
       for x:=2 to 11 do
        begin
           if MatrizPrincipal[x,y]>0 then // si hay un elemento aumenta en +1
@@ -1075,7 +1092,6 @@ begin
       tiempo:=false;
       minutos:=0;
       Puntos:=0;
-      SumaP:=0;
       linea:=0;  //Lineas completadas
       long2:= 0;
       long1:=0;
@@ -1132,24 +1148,7 @@ begin
         Figura(x, y, NumFig, 3);
         velocidad:= 80-(linea * 3); //  velocidad del juego
 
-
-           { textcolor(white); // Para Visualizar en tiempo real los numeros de las figuras
-              cont:=0;
-              for i:=11 downto 1 do
-                begin
-                  for j:=1 to 11 do
-                    begin
-                     cont:=cont+1;
-                     write(st[j,i]);
-                      if cont=11 then
-                         begin
-                          writeln;
-                          cont:=0;
-                         end;
-                    end;
-              end; }
-
-         if Tope_Matriz = 0 then // Si la celda está vacía y no hay colisión con el vidrio y los ladrillos colocados anteriormente en el vidrio
+        if Tope_Matriz = 0 then // Si la celda está vacía y no hay colisión con el vidrio y los ladrillos colocados anteriormente en el vidrio
           begin // then
            Repeat // repetir hasta colisión
             Figura(x, y, NumFig, 1); // La figura actual se dibuja antes del movimiento, 1 = [] de qué elemento se dibuja la figura
@@ -1227,35 +1226,21 @@ begin
         gotoxy(55,15);
         writeln ('JUEGO CONCLUIDO!'); // Escribir "Fin del juego"
 
-       (* observar matriz con los numeros al finalizar juego*)
-       contador:=0;
-       for i:=11 downto 1 do
-        begin
-           for j:=1 to 11 do
-            begin
-             contador:=contador+1;
-             write(MatrizPrincipal[j,i]);
-               if contador=11 then
-                begin
-                writeln;
-                contador:=0;
-                end;
-            end;
-       end;
+
 
       repeat
-      gotoxy(55,17);
-      writeln('Deseas Continuar jugando? ');
-      gotoxy(55,18);
-      writeln('SI   [1]');
-      gotoxy(55,19);
-      writeln('NO   [2]');
-      gotoxy(55,20);
-      write('>>');
-      gotoxy(57,20);
-      readln(salir);
-      gotoxy(57,20);
-      write('     '); // si escoge opcion ivalida borra numero ingresado
+        gotoxy(55,17);
+        writeln('Deseas Continuar jugando? ');
+        gotoxy(55,18);
+        writeln('SI   [1]');
+        gotoxy(55,19);
+        writeln('NO   [2]');
+        gotoxy(55,20);
+        write('>>');
+        gotoxy(57,20);
+        readln(salir);
+        gotoxy(57,20);
+        write('     '); // si escoge opcion ivalida borra numero ingresado
              if puntos>dato.score then
                begin
                  if enco = true then
