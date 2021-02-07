@@ -130,6 +130,7 @@ var nuevo:integer;
 
 begin
   // Entrada de datos
+
   valido:=true; // inicializar
   salir:=true;
   repeat
@@ -239,6 +240,7 @@ begin
 
      dato.ID:=random(9999999)*3;
      dato.password:=Cifrado(dato.password);
+     dato.score:=0;
      Writeln('Su ID de Usuario es ',dato.ID);
      writeln('Desea guardar este usuario SI[1] O NO[2]');
      repeat
@@ -744,10 +746,8 @@ begin
         Dibujar(x,y-1);
         Dibujar(x-1,y);
         Dibujar(x+1,y);
-        Dibujar(x,y-2);
         // Patron de forma 7
         //   [][][]
-        //     []
         //     []
     end;
 
@@ -756,7 +756,7 @@ begin
         Dibujar(x+1,y);
         Dibujar(x-1,y);
         Dibujar(x,y+1);
-        Dibujar(x,y+2);
+
         // Patron de forma 8
         //     []
         //     []
@@ -1139,11 +1139,8 @@ begin
         nuevafigura; // Aquí se sabrá qué forma será la próxima y actual
 
           (* Coordenadas de la aparicion de la nueva forma *)
-           if NumFig=8 then // si es la figura ocho, movemos su coordenada de aparicion un poco mas abajo
-             y:=9
-              else
-               y:= 11;
 
+        y:=11;
         x:= 6;
         Figura(x, y, NumFig, 3);
         velocidad:= 80-(linea * 3); //  velocidad del juego
