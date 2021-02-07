@@ -1160,11 +1160,22 @@ begin
               textcolor(yellow);
               if segundos>=0 then
                begin
-                gotoxy(55,19);
-                write('             ');
-                gotoxy(55,19);
-                write(minutos,':',segundos);
-               end;
+                if segundos<10 then
+                 begin
+                    gotoxy(55,19);
+                    write('             ');
+                    gotoxy(55,19);
+                    write(minutos,':','0',segundos);
+                 end
+               else
+               begin
+                  gotoxy(55,19);
+                  write('             ');
+                  gotoxy(55,19);
+                  write(minutos,':',segundos);
+                  end;
+              end;
+
 
 
                segundos:=segundos-1;
@@ -1195,7 +1206,7 @@ begin
                 end; // Se extrae una cifra de los elementos del campo de libro de pedidos vacío '. '
           until Tope_Matriz = 1; // Ocurrió una colisión
 
-          Figura(x, y, NumFig, 4); // !!!!! Dibuja la figura actual que no se puede mover y escribe su posición en la matriz de elementos del libro de pedidos st []
+          Figura(x, y, NumFig, 4); // Dibuja la figura actual que no se puede mover y escribe su posición en la matriz de elementos del libro de pedidos st []
 
           Contador_Figuras:=Contador_Figuras + 1; // Contador de cifras para depuración
 
