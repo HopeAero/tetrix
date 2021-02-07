@@ -11,6 +11,7 @@ type
     abreviatura:string[3];
     correo:string[40];
   end;
+
   top = array[1..5] of record
           nombre: string[80];
           ID: integer;
@@ -18,33 +19,33 @@ type
           score : integer;
           abreviatura:string[3];
         end;
+
  Almacenado = file of RegJugadores;
+
  const
    ubicacion = ('Jugadores.dat');
    ubicacion2 = ('Reporte.dat');{ubicacion del archivo}
    pared = 9;
 
-var Recorrer,x,y,Tope_Matriz,fila,b,c,velocidad,linea,contador,SumaP,NumFig,j:integer;
+var
+  Recorrer,x,y,Tope_Matriz,velocidad,linea,contador,SumaP,NumFig,j:integer;
 
- MatrizPrincipal:array[1..12,1..12] of integer;  // Declaramos una matriz del campo de juego 12x12
- FigElegida: array[1..4] of integer;            // Figuras escogidas por usuario
- rango_azar:array[1..1000] of integer;         // Declaramos una matriz aleatoria para crear una secuencia numérica de la apariencia de las formas, para determinar la siguiente forma.
+  MatrizPrincipal: array[1..12, 1..12] of integer; // Declaramos una matriz del campo de juego 12x12
+  FigElegida: array[1..4] of integer;             // Figuras escogidas por usuario
+  rango_azar: array[1..1000] of integer;         // Declaramos una matriz aleatoria para crear una secuencia numérica de la apariencia de las formas, para determinar la siguiente forma.
 
-  Contador_Figuras:integer;    // Declarar el contador de las figuras caídas
-  Puntos,i:integer;           // Declara una variable para guardar el resultado del juego (puntos del juego)
+  Contador_Figuras,i:integer;    // Contador de las figuras caídas
+  Puntos:integer;               // Guardar el resultado del juego (puntos del juego)
   minutos,segundos:integer;
-  nro_mov,eleccion:integer; // Numero de movimientos y escoger en el programa
-  mod_mov,tiempo:boolean;  // Activar movimientos en el cuerpo del programa
-  jugadores:almacenado;   // Variables de registro de usuario
-  dato:RegJugadores;
-  estado:integer;
-  respuesta:char;
-  datoscorrectos,jugar,veldak:boolean;
+  nro_mov:integer;            // Numero de movimientos y escoger en el programa
+  mod_mov,tiempo:boolean;   // Activar movimientos en el cuerpo del programa y tiempo
+  jugadores:almacenado;    // Variables de registro de usuario
+  dato:RegJugadores;      // Variables de registro de usuario
+
+  datoscorrectos:boolean;
   orden:top;
   reporte:file of top;
-  auxNombre:string[80];
-  auxEstado:string[3];
-  valido:boolean;
+  auxNombre: string[80];
 
 FUNCTION Cifrado(texto:string):string;     {cifrado}
   var
@@ -79,11 +80,11 @@ FUNCTION busqueda(aliass: string; var jugadores: Almacenado): Integer;
   			End;
 
   		  if match=True Then
-  			busqueda:=FilePos(Jugadores)-1
+  		     busqueda:=FilePos(Jugadores)-1
   		  Else
-  			busqueda:=-1; 				{no le asigno 0 porque se inician en 0}
+                   busqueda:=-1; 				{no le asigno 0 porque se inician en 0}
   	End;
-Procedure validacion(cadena:string);
+Procedure validacion(cadena:string; var valido:boolean);
   // recibe la palabra
 begin
 
@@ -105,160 +106,165 @@ begin
 
 end;
 procedure EntradaDeDatos;
-  var nuevo:integer;
+var nuevo:integer;
+   cadena:string;          // cadena introducida por el usuario
+   salir,valido:boolean;  // validaciones
+   respuesta:char;       // escoger opciones
+   estado:integer;
 
-    cadena:string;
-  begin
-    // Entrada de datos
+begin
+  // Entrada de datos
+  valido:=true; // inicializar
+  salir:=true;
+  repeat
+    writeln('******Entrada de datos******');
     repeat
-     writeln('******Entrada de datos******');
-
-     repeat
-
       write(' Introduzca Su Nombre = ');
       readln(dato.nombre);
       cadena:=dato.nombre;
-      validacion(cadena);
+      validacion(cadena,valido);
+    until (valido = true) and (i = Length(cadena));
 
-     until (valido = true) and (i = Length(cadena));
-
-     repeat
-
+    repeat
       write(' Introduzca Su Alias = ');
       readln(dato.Alias);
       cadena:=dato.Alias;
-      validacion(cadena);
+      validacion(cadena,valido);
+    until (valido = true) and (i = Length(cadena));
 
-      until (valido = true) and (i = Length(cadena));
-
-      { VALIDACION DE ALIAS EN CASO DE QUE ESTE EN EL ARCHIVO }
-          Nuevo:=busqueda(dato.alias, Jugadores);
-          If (Nuevo < 0) then	{Si no existe...}
+    { VALIDACION DE ALIAS EN CASO DE QUE ESTE EN EL ARCHIVO }
+    Nuevo:=busqueda(dato.alias, Jugadores);
+    If (Nuevo < 0) then	{Si no existe...}
   	  Begin
-                 write(' Clave de seguridad (maximo de 6) = ');
-                 readln(dato.password);
+     write(' Clave de seguridad (maximo de 6) = ');
+     readln(dato.password);
 
-
-            repeat
-                    write(' Introduzca Su Correo Electronico = ');
+      repeat
+                    salir:=true;
+                    writeln('Introduzca Su Correo Electronico');
                     readln(dato.correo);
                     cadena:=dato.correo;
-                    validacion(cadena);
 
-            until (valido = true) and (i = Length(cadena));
-
-                 write(' Fecha de nacimiento = ');
-                 readln(dato.FechaDeNacimiento);
-                 repeat
-                   if valido=false then
-                    begin
-                    clrscr;
-                    end;
-                                                WriteLn('> Amazonas-------------[1]');
-  						WriteLn('> Anzoategui-----------[2]');
-  						WriteLn('> Apure----------------[3]');
-  						WriteLn('> Aragua---------------[4]');
-  						WriteLn('> Barinas--------------[5]');    (* Menu de prcedencias. *)
-  						WriteLn('> Bolivar--------------[6]');
-  						WriteLn('> Carabobo-------------[7]');
-  						WriteLn('> Cojedes--------------[8]');
-  						WriteLn('> Delta Amacuro--------[9]');
-  						WriteLn('> Distrito Capital-----[10]');
-  						WriteLn('> Falcon---------------[11]');
-  						WriteLn('> Guarico--------------[12]');
-  						WriteLn('> Lara-----------------[13]');
-  						WriteLn('> Merida---------------[14]');
-  						WriteLn('> Miranda--------------[15]');
-  						WriteLn('> Monagas--------------[16]');
-  						WriteLn('> Nueva Esparta--------[17]');
-  						WriteLn('> Portuguesa-----------[18]');
-  						WriteLn('> Sucre----------------[19]');
-  						WriteLn('> Tachira--------------[20]');
-  						WriteLn('> Trujillo-------------[21]');
-  						WriteLn('> Vargas---------------[22]');
-  						WriteLn('> Yaracuy--------------[23]');
-  						WriteLn('> Zulia----------------[24]');
-                                                write(' SELECCIONE Estado de procedencia = ');
-                                                Readln(estado);
-
-                           if (estado<=0) or (estado>24) then
-                            begin
-                            writeln('Por favor escriba un lugar de procedencia valido!!!');
-                            valido:=false;
-                            end;
-
-                 until (estado>0) and (estado<=24);
-
-  						Case estado of
-  							1:dato.abreviatura:='AMZ';
-  							2:dato.abreviatura:='AZT';
-  							3:dato.abreviatura:='APR';
-  							4:dato.abreviatura:='ARG';
-  							5:dato.abreviatura:='BRN';
-  							6:dato.abreviatura:='BLV';
-  							7:dato.abreviatura:='CRB';
-  							8:dato.abreviatura:='COJ';     {Una vez seleccionado la variable}
-  							9:dato.abreviatura:='DLA';     {procedencia obtendra su abreviacion}
-  							10:dato.abreviatura:='CCS';
-  							11:dato.abreviatura:='FAL';
-  							12:dato.abreviatura:='GRC';
-  							13:dato.abreviatura:='LRA';
-  							14:dato.abreviatura:='MRD';
-  							15:dato.abreviatura:='MIR';
-  							16:dato.abreviatura:='MNG';
-  							17:dato.abreviatura:='NVE';
-  							18:dato.abreviatura:='PRT';
-  							19:dato.abreviatura:='SCR';
-  							20:dato.abreviatura:='TCH';
-  							21:dato.abreviatura:='TRJ';
-  							22:dato.abreviatura:='VRG';
-  							23:dato.abreviatura:='YRC';
-  							24:dato.abreviatura:='ZUL';
-  				                end;
+                    for i:=1 to length(cadena) do
+                      if (cadena[i]=',') OR (cadena[i]='(') OR (cadena[i]=')') OR (cadena[i]=':') OR (cadena[i]=';') OR (cadena[i]='<') OR (cadena[i]='>') OR (cadena[i]='/') then
+                      	salir:=false
 
 
-           dato.ID:= random(9999999)*3;
-           dato.password:= Cifrado(dato.password);
-           Writeln('Su ID de Usuario es ',dato.ID);
-           writeln('Desea guardar este usuario SI[1] O NO[2]');
-                repeat
-                 respuesta := readkey;
-                 until respuesta in['1','2'];
 
-                {$I-} reset(jugadores); {$I+}   {abro el archivo}
-                   if ioresult <> 0 then  {en caso de que el archivo no exista crea uno}
-                      begin
-                      rewrite(jugadores);
-                      seek(jugadores,0);
-                      write(jugadores,dato);
-                      close(jugadores);
-                      end
-                   else
-                       begin
-                       seek(jugadores,filesize(jugadores));  {Si el archivo existe lo guardara al final}
-                       write(jugadores,dato);
-                       close(jugadores);
-                       end;
-                       clrscr;
+      until salir=true;
+
+      write(' Fecha de nacimiento = ');
+      readln(dato.FechaDeNacimiento);
+      repeat
+        if valido=false then
+          clrscr;
+
+            WriteLn('> Amazonas-------------[1]');
+  	    WriteLn('> Anzoategui-----------[2]');
+  	    WriteLn('> Apure----------------[3]');
+  	    WriteLn('> Aragua---------------[4]');
+  	    WriteLn('> Barinas--------------[5]');    (* Menu de prcedencias. *)
+  	    WriteLn('> Bolivar--------------[6]');
+  	    WriteLn('> Carabobo-------------[7]');
+  	    WriteLn('> Cojedes--------------[8]');
+  	    WriteLn('> Delta Amacuro--------[9]');
+  	    WriteLn('> Distrito Capital-----[10]');
+  	    WriteLn('> Falcon---------------[11]');
+  	    WriteLn('> Guarico--------------[12]');
+  	    WriteLn('> Lara-----------------[13]');
+  	    WriteLn('> Merida---------------[14]');
+  	    WriteLn('> Miranda--------------[15]');
+  	    WriteLn('> Monagas--------------[16]');
+  	    WriteLn('> Nueva Esparta--------[17]');
+  	    WriteLn('> Portuguesa-----------[18]');
+  	    WriteLn('> Sucre----------------[19]');
+  	    WriteLn('> Tachira--------------[20]');
+  	    WriteLn('> Trujillo-------------[21]');
+  	    WriteLn('> Vargas---------------[22]');
+  	    WriteLn('> Yaracuy--------------[23]');
+  	    WriteLn('> Zulia----------------[24]');
+            write(' SELECCIONE Estado de procedencia = ');
+            Readln(estado);
+
+        if (estado<=0) or (estado>24) then
+          begin
+            writeln('Por favor escriba un lugar de procedencia valido!!!');
+            valido:=false;
+          end;
+       until (estado>0) and (estado<=24);
+
+  	  Case estado of
+  		  1:dato.abreviatura:='AMZ';
+  		  2:dato.abreviatura:='AZT';
+  		  3:dato.abreviatura:='APR';
+  		  4:dato.abreviatura:='ARG';
+  		  5:dato.abreviatura:='BRN';
+  		  6:dato.abreviatura:='BLV';
+  		  7:dato.abreviatura:='CRB';
+  		  8:dato.abreviatura:='COJ';     {Una vez seleccionado la variable}
+  		  9:dato.abreviatura:='DLA';     {procedencia obtendra su abreviacion}
+  		  10:dato.abreviatura:='CCS';
+  		  11:dato.abreviatura:='FAL';
+  		  12:dato.abreviatura:='GRC';
+  		  13:dato.abreviatura:='LRA';
+  		  14:dato.abreviatura:='MRD';
+  		  15:dato.abreviatura:='MIR';
+  		  16:dato.abreviatura:='MNG';
+  		  17:dato.abreviatura:='NVE';
+  		  18:dato.abreviatura:='PRT';
+  		  19:dato.abreviatura:='SCR';
+  		  20:dato.abreviatura:='TCH';
+  		  21:dato.abreviatura:='TRJ';
+  		  22:dato.abreviatura:='VRG';
+  		  23:dato.abreviatura:='YRC';
+  		  24:dato.abreviatura:='ZUL';
+  	  End;
+
+
+     dato.ID:=random(9999999)*3;
+     dato.password:=Cifrado(dato.password);
+     Writeln('Su ID de Usuario es ',dato.ID);
+     writeln('Desea guardar este usuario SI[1] O NO[2]');
+     repeat
+      respuesta := readkey;
+     until respuesta in['1','2'];
+
+     {$I-} reset(jugadores); {$I+}   {abro el archivo}
+     if ioresult <> 0 then  {en caso de que el archivo no exista crea uno}
+      begin
+        rewrite(jugadores);
+        seek(jugadores,0);
+        write(jugadores,dato);
+        close(jugadores);
       end
-       else
-            Begin
-  	      Writeln;
-  	      WriteLn('USTED SE HA REGISTRADO ANTERIORMENTE'); {Paso en caso de haberse registrado antes.}
-  	      Write('Desea registrar otro jugador(No[1]/Si[2]) ');
-  	      Readln(respuesta);
-                clrscr;
+     else
+      begin
+        seek(jugadores,filesize(jugadores));  {Si el archivo existe lo guardara al final}
+        write(jugadores,dato);
+        close(jugadores);
+      end;
+
+     clrscr;
+      end
+    else
+      Begin
+  	    Writeln;
+      	WriteLn('USTED SE HA REGISTRADO ANTERIORMENTE'); {Paso en caso de haberse registrado antes.}
+      	Write('Desea registrar otro jugador(No[1]/Si[2]) ');
+      	Readln(respuesta);
+        clrscr;
   	  end;
 
-     until (respuesta = '1');
-     readkey;
-  end;
+   until (respuesta = '1');
+   readkey;
+end;
 procedure InicioDeSesion(var datosCorrectos:boolean);
   var
      verificador:boolean;
      Usuario,clave:string;
      peso:integer;
      respu:char;
+     auxEstado: string[3];
 
    begin
     {$I-} reset(jugadores); {$I+}   {abro el archivo}
@@ -268,45 +274,44 @@ procedure InicioDeSesion(var datosCorrectos:boolean);
          readln;
          exit;
        end
-       else
+      else
         begin
-           verificador:=false;
-           peso:=filesize(jugadores); {Verifico si el archivo contiene algun elemento}
+          verificador:=false;
+          peso:=filesize(jugadores); {Verifico si el archivo contiene algun elemento}
            if peso<>0 then
             begin
-            writeln('Ingrese su nombre o alias previamente registrado');
-            readln(Usuario);
-            Writeln('Ingrese su clave');
-            readln(clave);
-            while not Eof(Jugadores) and not verificador do		{busco una coincidencia}
-  	             Begin
-                           Read(jugadores, dato);
-                           dato.password:=Descriptacion(dato.password);
-  			  if (Usuario=dato.nombre) or (Usuario=dato.Alias) then  {Si existe la coincidencia entonces entro}
-                              begin
-                               if clave=dato.password then     {Si existe otra coincidencia entonces el usuario ingreso bien sus datos}
-                                begin
-                                   Writeln('Ha iniciado sesion correctamente ',dato.nombre);
-                                   writeln;
-                                   verificador:=true;
-                                   writeln('Desea jugar con este usuario SI[1] O NO[2]');
-                                   writeln;
-                                    repeat
-                                      respu := readkey;
-                                     until respu in['1','2'];
+              writeln('Ingrese su nombre o alias previamente registrado');
+              readln(Usuario);
+              writeln('Ingrese su clave');
+              readln(clave);
+              while not Eof(Jugadores) and not verificador do		{busco una coincidencia}
+  	            Begin
+                  Read(jugadores, dato);
+                  dato.password:=Descriptacion(dato.password);
+  			          if (Usuario=dato.nombre) or (Usuario=dato.Alias) then  {Si existe la coincidencia entonces entro}
+                    if clave=dato.password then     {Si existe otra coincidencia entonces el usuario ingreso bien sus datos}
+                      begin
+                        Writeln('Ha iniciado sesion correctamente ',dato.nombre);
+                        writeln;
+                        verificador:=true;
+                        writeln('Desea jugar con este usuario SI[1] O NO[2]');
+                        writeln;
+                        repeat
+                          respu := readkey;
+                        until respu in['1','2'];
 
-                                      if respu='1' then
-                                       begin
-                                         datosCorrectos:=true;
-                                         auxNombre:=dato.Alias;
-                                         auxEstado:=dato.abreviatura;
-                                         writeln('PRESIONE [ENTER]');
-                                         readln;
-                                       end;
+                        if respu='1' then
+                          begin
+                            datosCorrectos:=true;
+                            auxNombre:=dato.Alias;
+                            auxEstado:=dato.abreviatura;
+                            writeln('PRESIONE [ENTER]');
+                            readln;
+                        End;
 
-                                end
-                              end;
-  	            End;
+                    End;
+  	      End;
+
               if verificador=false then {Debido a que es un ciclo repetitivo si condiciono dentro me repetira varias veces la palabra por ello verifico al final}
                begin
                 writeln('Ha ingresado incorrectamente sus datos pulse [Enter]');
@@ -321,18 +326,19 @@ procedure InicioDeSesion(var datosCorrectos:boolean);
         end;
       close(jugadores);
    end;
- procedure escoger;
+procedure escoger;
  type arreglo=array[1..8] of boolean;
-  var terminar:integer;
+  var
+    terminar:integer;
     lista:arreglo;
-    tecla:char;
+    opcion: integer;
   begin
     terminar:=0;
-    eleccion:=0;
-    for i:=1 to 8 do
-    lista[i]:=false; // inicializar
+    opcion:=0;
+   for i:=1 to 8 do
+      lista[i]:=false; // inicializar
 
-  repeat
+   repeat
 
       if lista[1]=false then  // verificar cuales figuras fueron escogidas
       begin
@@ -465,16 +471,16 @@ procedure InicioDeSesion(var datosCorrectos:boolean);
         writeln('Escoge 4 Figuras');
         gotoxy(30,15);
         readln(FigElegida[terminar]); // escoge un numero del 1 al 8
-        eleccion:=(FigElegida[terminar]); // verificamos si ya esa figura esta escogida
+        opcion:=(FigElegida[terminar]); // verificamos si ya esa figura esta escogida
         clrscr; // actualizar seleccion de figuras
-        if (eleccion>8) or (eleccion<1) then
+        if (opcion>8) or (opcion<1) then
         begin
           gotoxy(30,18);
           Textcolor(12);
           writeln('>> Escoge una figura valida! ');
           terminar:=terminar-1;
         end
-        else if lista[eleccion]=true then
+        else if lista[opcion]=true then
         begin
           gotoxy(30,18);
           Textcolor(12);
@@ -482,21 +488,22 @@ procedure InicioDeSesion(var datosCorrectos:boolean);
           terminar:=terminar-1;
         end
         else  // esa figura no se ha escogido se coloca en verdadero
-        lista[eleccion]:=true;
+        lista[opcion]:=true;
 
     until terminar=4; // ya escogio 4 figuras
-
   end;
 procedure modalidad;
+var
+  opcion: integer;
 begin
        clrscr;  // borrar pantalla
        writeln('Que modalidad desea jugar?');
        writeln('>> Por Movimientos (1)');
        writeln('>> Modo normal     (2)');
        writeln('>> Modo tiempo     (3)');
-       readln(eleccion);
+       readln(opcion);
 
-       case eleccion of
+       case opcion of
         1:
           begin
             mod_mov:=true;
@@ -525,7 +532,8 @@ begin
        end;
 end;
 PROCEDURE cargando;
-var rodar:integer;
+var
+  rodar:integer;
 begin
  rodar:=0;
 
@@ -609,8 +617,6 @@ end;
   // Procedimiento para dibujar celdas de campo
 procedure Dibujar(x,y:integer);                 // Procedimiento k (x, y): dibuja una parte de una figura, una parte de una valla de vidrio en una determinada coordenada de la pantalla de texto
 begin
-
-
   gotoxy(x*2+20,23-y);                      // Colocar el cursor de texto en la línea (X * 2 + 20) por X y (23-Y) la posición inicial del vaso
   if Recorrer=0 then
   begin
@@ -638,48 +644,42 @@ end;  // Fin del procedimiento para dibujar celdas k (x, y)
 // procediemiento para dibujar formas
 procedure Figura(x,y,n,s:integer); // El procedimiento fig (x, y, n, s) almacena información sobre los tipos de figuras de Tetris
 begin
+  if s=3 then
+  Tope_Matriz:=0;
 
-    if s=3 then
-    Tope_Matriz:=0;
+  Recorrer:=s;
+  Dibujar(x,y);
 
-    Recorrer:=s;
-    Dibujar(x,y);
+  // NumFig sera el numero al azar de la figura que sera intercambiado por los numero de figura escogidos por el usuario
+  case n of   // cambiar numero del 1 a 4 por numeros escogidos por el usuario para las figuras
+    1:n:=FigElegida[1];
+    2:n:=FigElegida[2];
+    3:n:=FigElegida[3];
+    4:n:=FigElegida[4];
+  end;
 
-    // NumFig sera el numero al azar de la figura que sera intercambiado por los numero de figura escogidos por el usuario
-    case n of   // cambiar numero del 1 a 4 por numeros escogidos por el usuario para las figuras
-       1:n:=FigElegida[1];
-       2:n:=FigElegida[2];
-       3:n:=FigElegida[3];
-       4:n:=FigElegida[4];
-    end;
-
-
-
-    case n of  // figura escogidas por el usuario
-     1:begin
-          TextColor(white);
-          Dibujar(x-1,y);
-          Dibujar(x+1,y);
-          Dibujar(x+1,y);
-          // Patrón de forma 1
-          //   [][][]
+  case n of  // figura escogidas por el usuario
+    1:begin
+      TextColor(white);
+      Dibujar(x-1,y);
+      Dibujar(x+1,y);
+      Dibujar(x+1,y);
+      // Patrón de forma 1
+      //   [][][]
       end;
 
-
-     2:begin
-      TextColor(yellow);
-      Dibujar(x,y+1);
-      Dibujar(x,y-1);
-      Dibujar(x,y-1);
-      // Patrón de forma 2
-      //   []
-      //   []
-      //   []
-
+    2:begin
+        TextColor(yellow);
+        Dibujar(x,y+1);
+        Dibujar(x,y-1);
+        Dibujar(x,y-1);
+        // Patrón de forma 2
+        //   []
+        //   []
+        //   []
       end;
 
-      3:
-      begin
+    3:begin
         Textcolor(12);
         Dibujar(x,y+1);
         Dibujar(x,y-1);
@@ -690,20 +690,18 @@ begin
         //   [][]
       end;
 
-      4:
-      begin
-          Textcolor(13);
-          Dibujar(x,y+1);
-          Dibujar(x,y-1);
-          Dibujar(x-1,y-1);
-          // Patron de forma 4
-          //     []
-          //     []
-          //   [][]
+    4:begin
+        Textcolor(13);
+        Dibujar(x,y+1);
+        Dibujar(x,y-1);
+        Dibujar(x-1,y-1);
+        // Patron de forma 4
+        //     []
+        //     []
+        //   [][]
       end;
 
-      5:
-      begin
+    5:begin
         Textcolor(10);
         Dibujar(x,y+1);
         Dibujar(x+1,y+1);
@@ -713,8 +711,8 @@ begin
         //   []
         //   []
       end;
-      6:
-      begin
+
+    6:begin
         Textcolor(yellow);
         Dibujar(x,y+1);
         Dibujar(x,y-1);
@@ -723,135 +721,127 @@ begin
         //   [][]
         //     []
         //     []
-      end;
-      7:
-      begin
-      Textcolor(12);
-      Dibujar(x,y-1);
-      Dibujar(x-1,y);
-      Dibujar(x+1,y);
-       Dibujar(x,y-2);
-       // Patron de forma 7
-      //   [][][]
-      //     []
-      //     []
+    end;
 
+    7:begin
+        Textcolor(12);
+        Dibujar(x,y-1);
+        Dibujar(x-1,y);
+        Dibujar(x+1,y);
+        Dibujar(x,y-2);
+        // Patron de forma 7
+        //   [][][]
+        //     []
+        //     []
+    end;
 
-      end;
-      8:
-      begin
+    8: begin
         Textcolor(13);
         Dibujar(x+1,y);
         Dibujar(x-1,y);
         Dibujar(x,y+1);
-         Dibujar(x,y+2);
-         // Patron de forma 8
-
-         //    []
+        Dibujar(x,y+2);
+        // Patron de forma 8
+        //     []
         //     []
         //   [][][]
-      end;
-
     end;
-  end;  //  Fin del procedimiento de dibujo de figuras
+  end;
+end;  //  Fin del procedimiento de dibujo de figuras
 
 //  Procedimiento de limpieza
 procedure limpiar;
 begin
   for x:=1 to 12 do
    for y:=1 to 12 do
-       if (x=1) or (x=11) or (y=1) then
-        MatrizPrincipal[x,y]:=pared
-          else
-            MatrizPrincipal[x,y]:=0;
+     if (x=1) or (x=11) or (y=1) then
+      MatrizPrincipal[x,y]:=pared
+     else
+      MatrizPrincipal[x,y]:=0;
           //Se dibuja el contorno del vidrio y se reinicia el vidrio
 end;  //  Fin del procedimiento de limpieza de cristales *
 //  Procedimiento para crear las paredes
 procedure paredes;
 begin
    for x:=1 to 11 do
-   begin
     for y:=1 to 11 do
-    begin
-      Recorrer:=MatrizPrincipal[x,y];
-      Dibujar(x,y);    // Llamada al procedimiento k (x, y) - dibuja una parte de una figura, una parte de una valla de vidrio en una determinada coordenada de la pantalla de texto
-    end;
-   end;
-
+      begin
+        Recorrer:=MatrizPrincipal[x,y];
+        Dibujar(x,y);    // Llamada al procedimiento k (x, y) - dibuja una parte de una figura, una parte de una valla de vidrio en una determinada coordenada de la pantalla de texto
+      end;
 end; // Fin del procedimiento para extraer todo el vaso
 procedure restar_mov;
 begin
   if (mod_mov=true) and (nro_mov>0) then    //si se presiona una tecla se resta un movimiento TIENE que estar modalidad movimientos activado
-              begin
-                 if nro_mov<=10 then // colocar texto en rojo cuando quedan 10 movimientos
-                  begin
-                  nro_mov:=nro_mov-1;
-                  gotoxy(55,11);
-                  writeln('                  '); // borrar movimientos anteriores
-                  textcolor(red);
-                  gotoxy(55,11);
-                  writeln('movimientos ',nro_mov);
-                  end
-                 else
-                 begin
-                  nro_mov:=nro_mov-1;
-                  gotoxy(55,11);
-                  textcolor(yellow);
-                  writeln('movimientos ',nro_mov);
-                 end;
-  end;
+    if nro_mov<=10 then // colocar texto en rojo cuando quedan 10 movimientos
+      begin
+      nro_mov:=nro_mov-1;
+      gotoxy(55,11);
+      writeln('                  '); // borrar movimientos anteriores
+      textcolor(red);
+      gotoxy(55,11);
+      writeln('movimientos ',nro_mov);
+      end
+    else
+     begin
+      nro_mov:=nro_mov-1;
+      gotoxy(55,11);
+      textcolor(yellow);
+      writeln('movimientos ',nro_mov);
+     end;
 end;
 // Procedimiento para controlar y mover figuras usando el teclado
 procedure control;
 var
-i:integer;
-key:char;
-  begin
-    for i:=1 to 10 do
-       begin
-        delay(velocidad);     // Retraso basado en datos de la variable d
-        key:=' ';
-        if keypressed then
-           key:=readkey;
+  i:integer;
+  key:char;
+begin
+  for i:=1 to 10 do
+    begin
+      delay(velocidad);     // Retraso basado en datos de la variable d
+      key:=' ';
+      if keypressed then
+         key:=readkey;
 
-     if nro_mov>=0 then // si no se acabaron los movimientos hacer
-      begin
-       if (key='a') OR (key='A') then                    // Si se presiona la tecla a, entonces izquierda <=== [a]
-       begin
-
-          restar_mov; // si se presiona la tecla se resta un movimiento
-          Figura(x-1,y,NumFig,3);
-          if Tope_Matriz=0 then
-          begin
+      if nro_mov>=0 then // si no se acabaron los movimientos hacer
+        begin
+         if (key='a') OR (key='A') then                    // Si se presiona la tecla a, entonces izquierda <=== [a]
+         begin
+            restar_mov; // si se presiona la tecla se resta un movimiento
+            Figura(x-1,y,NumFig,3);
+            if Tope_Matriz=0 then
+              begin
                 Figura(x,y,NumFig,0);
                 x:=x-1;
                 Figura(x,y,NumFig,1);
+              end;
+         end;
+
+         if (key='d') OR (key='D') then                    // Si se presiona la tecla d, entonces derecha    ===> [d]
+          begin
+            restar_mov; // si se presiona la tecla se resta un movimiento
+            Figura(x+1,y,NumFig,3);
+            if Tope_Matriz=0 then
+             begin
+               Figura(x,y,NumFig,0);
+               x:=x+1;
+               Figura(x,y,NumFig,1);
+             end;
           end;
-       end;
-       if (key='d') OR (key='D') then                    // Si se presiona la tecla d, entonces derecha    ===> [d]
-        begin
 
-          restar_mov; // si se presiona la tecla se resta un movimiento
+         if (key='s') OR (key='S') then
+          begin
+            restar_mov; // si se presiona la tecla se resta un movimiento
+            velocidad:=1;  // Si se presiona la tecla s, la figura vuela hacia abajo = [s] =
+          end;
 
-          Figura(x+1,y,NumFig,3);
-          if Tope_Matriz=0 then
-           begin
-             Figura(x,y,NumFig,0);
-             x:=x+1;
-             Figura(x,y,NumFig,1);
-           end;
+         if (nro_mov<2) and (mod_mov=true) then // si queda menos de un movimiento se acelera el juego
+            velocidad:=1;
+
+         if nro_mov=0 then // si es ultimo movimiento restar para que no vuelva a entrar a el ciclo
+            nro_mov:=nro_mov-1;
+
         end;
-        if (key='s') OR (key='S') then
-        begin
-          restar_mov; // si se presiona la tecla se resta un movimiento
-          velocidad:=1;  // Si se presiona la tecla s, la figura vuela hacia abajo = [s] =
-        end;
-        if (nro_mov<2) and (mod_mov=true) then // si queda menos de un movimiento se acelera el juego
-        velocidad:=1;
-       if nro_mov=0 then // si es ultimo movimiento restar para que no vuelva a entrar a el ciclo
-       nro_mov:=nro_mov-1;
-
-      end;
     end;
    // Fin del procedimiento para controlar y mover figuras usando el teclado
 end;
@@ -864,41 +854,37 @@ begin
 
   FiguraActual:=rango_azar[Contador_Figuras+1]; // Definir la forma actual numero al azar
 
-
-
-   case FiguraActual of
+  case FiguraActual of
     1:frase:=' En todo amar y servir ';
     2:frase:=' Dile NO a las drogas! ';
     3:frase:=' No contamines tu pais ';
     4:frase:=' Siembra una semilla ! ';
    end;
 
-   gotoxy(20,2);write('         ',chr(92),chr(179),chr(186),'/');// \|||/
-   gotoxy(20,3);write('         (O O)');
-   gotoxy(20,4);write(chr(201),'======ooO-(_)-Ooo======',chr(187));
-   gotoxy(20,5);write('                      '); // limpiar frase anterior
-   gotoxy(20,5);write(chr(03),frase,chr(03)); // frase
-   gotoxy(20,6);write(chr(200),'=======================',chr(188));
+  gotoxy(20,2);write('         ',chr(92),chr(179),chr(186),'/');// \|||/
+  gotoxy(20,3);write('         (O O)');
+  gotoxy(20,4);write(chr(201),'======ooO-(_)-Ooo======',chr(187));
+  gotoxy(20,5);write('                      '); // limpiar frase anterior
+  gotoxy(20,5);write(chr(03),frase,chr(03)); // frase
+  gotoxy(20,6);write(chr(200),'=======================',chr(188));
 
 
   NumFig:=FiguraActual;
 
-                        gotoxy(55,10); writeln('               ');  // Borra la línea de puntos
-                        gotoxy(55,10); writeln('Puntos: ', Puntos);    // Puntos por el éxito en el juego
-                        gotoxy(55,12); writeln('Nombre: ',Upcase(dato.alias));
-                        gotoxy(55,13); writeln('Origen: (',Upcase(dato.abreviatura),')');
+  gotoxy(55,10); writeln('               ');  // Borra la línea de puntos
+  gotoxy(55,10); writeln('Puntos: ', Puntos);    // Puntos por el éxito en el juego
+  gotoxy(55,12); writeln('Nombre: ',Upcase(dato.alias));
+  gotoxy(55,13); writeln('Origen: (',Upcase(dato.abreviatura),')');
 
-                        gotoxy(55,2); writeln('RECORD: ',dato.score);
-                        gotoxy(55,3); writeln('PROXIMA FIGURA ');    // Información sobre la siguiente forma
-                        gotoxy(56,4); writeln('               ');    // Espacios, 15 piezas cada uno, para borrar los rastros de mostrar la siguiente figura del movimiento anterior
-                        gotoxy(56,5); writeln('               ');      //
-                        gotoxy(56,6); writeln('               ');      //
-                        gotoxy(56,7); writeln('               ');      //
-                        gotoxy(56,8); writeln('               ');      //
-                        gotoxy(56,9); writeln('               ');      //
-                        Figura(20,17,FiguraNext,1); // Dibuja una figura, que saldrá de la siguiente 20 = coordenada x, 17 = coordenada y, NextFigure = nn valor, 1 = [] de qué elemento se dibuja la figura
-
-
+  gotoxy(55,2); writeln('RECORD: ',dato.score);
+  gotoxy(55,3); writeln('PROXIMA FIGURA ');    // Información sobre la siguiente forma
+  gotoxy(56,4); writeln('               ');    // Espacios, 15 piezas cada uno, para borrar los rastros de mostrar la siguiente figura del movimiento anterior
+  gotoxy(56,5); writeln('               ');      //
+  gotoxy(56,6); writeln('               ');      //
+  gotoxy(56,7); writeln('               ');      //
+  gotoxy(56,8); writeln('               ');      //
+  gotoxy(56,9); writeln('               ');      //
+  Figura(20,17,FiguraNext,1); // Dibuja una figura, que saldrá de la siguiente 20 = coordenada x, 17 = coordenada y, NextFigure = nn valor, 1 = [] de qué elemento se dibuja la figura
 
   textcolor(LightCyan);
   gotoxy(20,24);
@@ -913,35 +899,35 @@ procedure ordenaarchivos;
 
   {$I-} reset(jugadores); {$I+}
    if ioresult <> 0 then
-   begin
+     begin
        writeln('  Error de archivo pulse [Enter]');
        readln;
        exit;
-   end
- else
-    begin
-     for i := 0 to filesize(jugadores) - 1 do
-     begin
+     end
+   else
+      begin
+       for i := 0 to filesize(jugadores) - 1 do
+       begin
          seek(jugadores,i);
          read(jugadores,dato);
          for t := filesize(jugadores) - 1 downto i + 1 do
          begin
-            seek(jugadores,t);
-            read(jugadores,da);
-            if dato.score<da.score then
+          seek(jugadores,t);
+          read(jugadores,da);
+          if dato.score<da.score then
             begin
-               tempo := dato;
-               dato := da;
-               da := tempo;
-               seek(jugadores,i);
-               write(jugadores,dato);
-               seek(jugadores,t);
-               write(jugadores,da);
+             tempo := dato;
+             dato := da;
+             da := tempo;
+             seek(jugadores,i);
+             write(jugadores,dato);
+             seek(jugadores,t);
+             write(jugadores,da);
             end;
          end;
+        end;
+          close(jugadores);
       end;
-        close(jugadores);
-    end;
   end;
 procedure presentaordenados;
     var
@@ -971,7 +957,7 @@ procedure presentaordenados;
       end;
       readln;
 end;
-procedure Top5;
+procedure Top5(var tabla:boolean);
   VAR
      k:longint;
   begin
@@ -982,29 +968,29 @@ procedure Top5;
      readln;
      exit;
    end
- else
-   begin
-      veldak:=false;
+   else
+     begin
+      tabla:=false;
       if filesize(jugadores)>=5 then
        begin
-       For k:=1 to 5 do
-        begin
-          seek(jugadores,k-1);
-          read(jugadores,dato);
-          orden[k].nombre:= dato.nombre;
-          orden[k].ID:= dato.ID;
-          orden[k].Alias:= dato.Alias;
-          orden[k].score:=dato.score;
-          orden[k].abreviatura:=dato.abreviatura;
-         end;
-       close(jugadores)
+         For k:=1 to 5 do
+          begin
+            seek(jugadores,k-1);
+            read(jugadores,dato);
+            orden[k].nombre:= dato.nombre;
+            orden[k].ID:= dato.ID;
+            orden[k].Alias:= dato.Alias;
+            orden[k].score:=dato.score;
+            orden[k].abreviatura:=dato.abreviatura;
+           end;
+         close(jugadores);
        end
-        else
-         begin
-           veldak:=true;
-           writeln('EL ARCHIVO NO CONTIENE 5 JUGADORES PRESIONE [ENTER]');
-         end;
-   end;
+      else
+       begin
+         tabla:=true;
+         writeln('EL ARCHIVO NO CONTIENE 5 JUGADORES PRESIONE [ENTER]');
+       end;
+     end;
    assign(reporte,ubicacion2);
    rewrite(reporte);
    write(reporte,orden);
@@ -1013,8 +999,8 @@ procedure Top5;
 procedure VisualizarTop5;
 var
    M:integer;
+   tabla: boolean;
 begin
-
   {$I-} reset(jugadores); {$I+}
    if ioresult <> 0 then
    begin
@@ -1022,284 +1008,280 @@ begin
      readln;
      exit;
    end
- else
- begin
-    ordenaarchivos;
-    Top5;
-    if veldak=True then
+   else
      begin
-     end
-       else
-         begin
-       writeln('*** TOP 5 ***');
-       writeln;
-       writeln(' Nombre               Numero          Estado');
-         For M:=1 to 5 do
+        ordenaarchivos;
+        Top5(tabla);
+        if tabla=false then
           begin
-          gotoxy(3,4 + M);write(orden[M].alias);
-          gotoxy(25,4 + M);write(orden[M].score);
-          gotoxy(39,4 + M);write(orden[M].abreviatura);
+           writeln('*** TOP 5 ***');
+           writeln;
+           writeln(' Nombre               Numero          Estado');
+             For M:=1 to 5 do
+              begin
+              gotoxy(3,4 + M);write(orden[M].alias);
+              gotoxy(25,4 + M);write(orden[M].score);
+              gotoxy(39,4 + M);write(orden[M].abreviatura);
+              end;
           end;
-         end;
-       readln;
+
+        readln;
      end;
   end;
 procedure CalculoPuntaje;
+var b,c,fila:integer;
 begin
-for y:=11 downto 2 do // Comprobando filas llenas
-         begin // Comienza a verificar las filas llenas
-          fila:=0;
+  for y:=11 downto 2 do // Comprobando filas llenas
+     begin // Comienza a verificar las filas llenas
+      fila:=0;
 
-          for x:=2 to 11 do
-           begin
-              if MatrizPrincipal[x,y]>0 then // si hay un elemento aumenta en +1
-               fila:=fila+1;
-           end;
-          If fila=10 then // Si la suma de las celdas es 10, entonces la fila está llena, la matriz se movera hacia abajo
-           begin // Comienza a cambiar la matriz
-            contador:=0;
-            linea:=linea+1; // lineas completadas , por cada linea se acelera el juego
-            SumaP:=0; // Reiniciar suma
-             for b:=y to 11 do
-               for c:=1 to 11 do
-                begin
-                contador:=contador+1;
-                 if contador<=10 then
-                     SumaP:=SumaP+MatrizPrincipal[c,b];
+      for x:=2 to 11 do
+       begin
+          if MatrizPrincipal[x,y]>0 then // si hay un elemento aumenta en +1
+           fila:=fila+1;
+       end;
 
-                 MatrizPrincipal[c, b]:=MatrizPrincipal[c, b + 1]; // Desplaza la matriz hacia abajo
-                end;
-              Puntos:=Puntos+100*(SumaP-pared); // puntos actual + lo calculado -9 que es una columna de la pared
+      If fila=10 then // Si la suma de las celdas es 10, entonces la fila está llena, la matriz se movera hacia abajo
+       begin // Comienza a cambiar la matriz
+        contador:=0;
+        linea:=linea+1; // lineas completadas, por cada linea se acelera el juego
+        SumaP:=0; // Reiniciar suma
+        for b:=y to 11 do
+          for c:=1 to 11 do
+            begin
+              contador:=contador+1;
+              if contador<=10 then
+                SumaP:=SumaP+MatrizPrincipal[c,b];
 
-           end; // Fin del cambio de matriz
-         end; // Fin de la comprobación de filas llenas
+               MatrizPrincipal[c, b]:=MatrizPrincipal[c, b + 1]; // Desplaza la matriz hacia abajo
+            end;
+        Puntos:=Puntos+100*(SumaP-pared); // puntos actual + lo calculado -9 que es una columna de la pared
+
+       end; // Fin del cambio de matriz
+     end; // Fin de la comprobación de filas llenas
 end;
 procedure iniciar;
 var
    long1, long2 : longint;
    enco,perdiste : boolean;
+   salir: char;
 begin
-           Repeat
-           //INICIALIZAR
+  Repeat
 
-            nro_mov:=1;
-            mod_mov:=false;
-            tiempo:=false;
-            minutos:=0;
-            Puntos:=0;
-            SumaP:=0;
-            linea:=0;  //Lineas completadas
-            long2 := 0;
-            long1:=0;
-            enco:=false;
-            perdiste:=false;
+      (*INICIALIZAR*)
 
-                  reset(jugadores);
-                  while not eof(jugadores) and not enco do
-                    begin
-                     long1:=long1+1;
-                     read(Jugadores,dato);
-                       if auxNombre =dato.Alias  then
-                         begin
-                         enco := true;
-                         long2 := long1-1;
-                        end;
-                  end;
+      nro_mov:=1;
+      mod_mov:=false;
+      tiempo:=false;
+      minutos:=0;
+      Puntos:=0;
+      SumaP:=0;
+      linea:=0;  //Lineas completadas
+      long2:= 0;
+      long1:=0;
+      enco:=false;
+      perdiste:=false;
 
-            // FIN INICIALIZAR
+      reset(jugadores);
+      while not eof(jugadores) and not enco do
+        begin
+         long1:=long1+1;
+         read(Jugadores,dato);
+           if auxNombre=dato.Alias  then
+             begin
+             enco := true;
+             long2 := long1-1;
+            end;
+      end;
 
-            Clrscr;                   // pantalla limpia
+      (*FIN INICIALIZAR*)
 
-            escoger; // escoger figura
-
-            modalidad; // escoger modalidad de juego
-
-            cargando; // cargando partida
-
-            randomize; // Encender el generador de números aleatorios  por cada iteración
-             for i:=1 to 1000 do
-               rango_azar[i]:=(1+ random(4));  // Crea una secuencia aleatoria, casi infinita para determinar la forma actual y la siguiente
+      Clrscr;                   // pantalla limpia
+      escoger; // escoger figura
+      modalidad; // escoger modalidad de juego
+      cargando; // cargando partida
+      randomize; // Encender el generador de números aleatorios  por cada iteración
+       for i:=1 to 1000 do
+         rango_azar[i]:=(1+ random(4));  // Crea una secuencia aleatoria, casi infinita para determinar la forma actual y la siguiente
 
 
-            clrscr;    // Limpia la pantalla de la pantalla de bienvenida
+      clrscr;    // Limpia la pantalla de la pantalla de bienvenida
 
-             textcolor(Yellow);                       // La línea superior izquierda, preguntando "¿cómo jugar?"
-             gotoxy(01,10);
-             Writeln('    Controles ');
-             Writeln;
-             Writeln('  <A> izquierda');
-             Writeln('  <D> Derecha');
-             Writeln('  <S> Abajo');
+       textcolor(Yellow);                       // La línea superior izquierda, preguntando "¿cómo jugar?"
+       gotoxy(01,10);
+       Writeln('    Controles ');
+       Writeln;
+       Writeln('  <A> izquierda');
+       Writeln('  <D> Derecha');
+       Writeln('  <S> Abajo');
 
-            limpiar; // Procedimiento para poner a cero los espacios vacios de la matriz
-            paredes; // Procedimiento para dibujar las paredes
+      limpiar; // Procedimiento para poner a cero los espacios vacios de la matriz
+      paredes; // Procedimiento para dibujar las paredes
 
-             repeat // ¡Empieza a repetir el bucle principal del juego! Siempre que haya un espacio vacío en el campo para el movimiento y la aparición de nuevas piezas.
+       repeat // ¡Empieza a repetir el bucle principal del juego! Siempre que haya un espacio vacío en el campo para el movimiento y la aparición de nuevas piezas.
 
-              nuevafigura; // Aquí se sabrá qué forma será la próxima y actual
+        nuevafigura; // Aquí se sabrá qué forma será la próxima y actual
 
-                // Coordenadas de la aparicion de la nueva forma
-                 if NumFig=8 then // si es la figura ocho, movemos su coordenada de aparicion un poco mas abajo
-                   y:=9
-                    else
-                     y:= 11;
+          (* Coordenadas de la aparicion de la nueva forma *)
+           if NumFig=8 then // si es la figura ocho, movemos su coordenada de aparicion un poco mas abajo
+             y:=9
+              else
+               y:= 11;
 
-              x:= 6;
-              Figura(x, y, NumFig, 3);
-              velocidad:= 80-(linea * 3); //  velocidad del juego
-
-
-                 { textcolor(white); // Para Visualizar en tiempo real los numeros de las figuras
-                    cont:=0;
-                    for i:=11 downto 1 do
-                      begin
-                        for j:=1 to 11 do
-                          begin
-                           cont:=cont+1;
-                           write(st[j,i]);
-                            if cont=11 then
-                               begin
-                                writeln;
-                                cont:=0;
-                               end;
-                          end;
-                    end; }
-
-               if Tope_Matriz = 0 then // Si la celda está vacía y no hay colisión con el vidrio y los ladrillos colocados anteriormente en el vidrio
-                begin // then
-                 Repeat // repetir hasta colisión
-                  Figura(x, y, NumFig, 1); // La figura actual se dibuja antes del movimiento, 1 = [] de qué elemento se dibuja la figura
-                  control; // Llamar al procedimiento para el control de movimientos
-
-                  if (tiempo=true) then // si funcion tiempo esta activado hacer
-                   begin
-                    //Mostrar tiempo en pantalla
-                    textcolor(yellow);
-                    if segundos>=0 then
-                     begin
-                      gotoxy(55,19);
-                      write('             ');
-                      gotoxy(55,19);
-                      write(minutos,':',segundos);
-                     end;
+        x:= 6;
+        Figura(x, y, NumFig, 3);
+        velocidad:= 80-(linea * 3); //  velocidad del juego
 
 
-                     segundos:=segundos-1;
-
-                     if segundos=-1 then
-                      begin
-                      perdiste:=true;
-                         textcolor(12); // al acabarse el tiempo muestra mensaje en pantalla
-                         gotoxy(55,16);
-                         write('Se te acabo tu tiempo !');
-                      end;
-
-                     if (segundos=0) and (minutos>0) then  // si segundos llega a cero reiniciar tiempo
-                      begin
-                      segundos:=59;
-
-                      if (minutos>0) then
-                      minutos:=minutos-1;
-
-                      end;
-                   end;
-
-                   Figura(x, y-1, NumFig, 3); // Dibuja una figura con un desplazamiento a lo largo del eje Y, siempre que ss = 3 y el índice de matriz no sea un espacio vacío (el borde del vidrio o el borde de las figuras), luego asigna pus = 1 y evita que la figura caiga un elemento antes del borde del vidrio
-                    if Tope_Matriz = 0 then
-                      begin
-                       Figura(x, y, NumFig, 0);  // borra el rastro que deja la figura
-                       y:= y-1;
-                      end; // Se extrae una cifra de los elementos del campo de libro de pedidos vacío '. '
-                until Tope_Matriz = 1; // Ocurrió una colisión
-
-                Figura(x, y, NumFig, 4); // !!!!! Dibuja la figura actual que no se puede mover y escribe su posición en la matriz de elementos del libro de pedidos st []
-
-                Contador_Figuras:=Contador_Figuras + 1; // Contador de cifras para depuración
-
-
-                CalculoPuntaje;
-
-                paredes; // Procedimiento para dibujar elementos de toda la cartera de pedidos
-                Tope_Matriz:=0;
-                end;
-
-
-                  //Acabar por movimientos o tiempo
-                if (nro_mov<1) or (minutos<0) then  // si se acaban los movimientos se termina el juego
+           { textcolor(white); // Para Visualizar en tiempo real los numeros de las figuras
+              cont:=0;
+              for i:=11 downto 1 do
                 begin
-                 perdiste:=true;
-                  if mod_mov=true then
+                  for j:=1 to 11 do
                     begin
-                    textcolor(12); // color rojo
-                    gotoxy(55,11);
-                    writeln('                   '); // borrar mensaje anterior
-                    gotoxy(55,11);
-                   writeln('Sin Movimientos !');
-                   end;
+                     cont:=cont+1;
+                     write(st[j,i]);
+                      if cont=11 then
+                         begin
+                          writeln;
+                          cont:=0;
+                         end;
+                    end;
+              end; }
+
+         if Tope_Matriz = 0 then // Si la celda está vacía y no hay colisión con el vidrio y los ladrillos colocados anteriormente en el vidrio
+          begin // then
+           Repeat // repetir hasta colisión
+            Figura(x, y, NumFig, 1); // La figura actual se dibuja antes del movimiento, 1 = [] de qué elemento se dibuja la figura
+            control; // Llamar al procedimiento para el control de movimientos
+
+            if (tiempo=true) then // si funcion tiempo esta activado hacer
+             begin
+              (* Mostrar tiempo en pantalla *)
+              textcolor(yellow);
+              if segundos>=0 then
+               begin
+                gotoxy(55,19);
+                write('             ');
+                gotoxy(55,19);
+                write(minutos,':',segundos);
+               end;
+
+
+               segundos:=segundos-1;
+
+               if segundos=-1 then
+                begin
+                   perdiste:=true;
+                   textcolor(12); // al acabarse el tiempo muestra mensaje en pantalla
+                   gotoxy(55,16);
+                   write('Se te acabo tu tiempo !');
                 end;
-               until (Tope_Matriz = 1) OR (perdiste=true); // ¡Deja de repetir el ciclo principal del juego! Porque no hay espacio vacío.
 
-              textcolor(11); //color azul
-              gotoxy(55,15);
-              writeln ('JUEGO CONCLUIDO!'); // Escribir "Fin del juego"
+               if (segundos=0) and (minutos>0) then  // si segundos llega a cero reiniciar tiempo
+                begin
+                segundos:=59;
 
+                if (minutos>0) then
+                minutos:=minutos-1;
 
-
-             // observar matriz con los numeros al finalizar juego
-             contador:=0;
-             for i:=11 downto 1 do
-              begin
-                 for j:=1 to 11 do
-                  begin
-                   contador:=contador+1;
-                   write(MatrizPrincipal[j,i]);
-                     if contador=11 then
-                      begin
-                      writeln;
-                      contador:=0;
-                      end;
-                  end;
+                end;
              end;
 
-            repeat
-            gotoxy(55,17);
-            writeln('Deseas Continuar jugando? ');
-            gotoxy(55,18);
-            writeln('SI   [1]');
-            gotoxy(55,19);
-            writeln('NO   [2]');
-            gotoxy(55,20);
-            write('>>');
-            gotoxy(57,20);
-            readln(eleccion);
-            gotoxy(57,20);
-            write('     '); // si escoge opcion ivalida borra numero ingresado
-                   if puntos>dato.score then
-                     begin
-                       if enco = true then
-                        begin
-                        dato.score:=puntos;
-                        seek(jugadores,long2);
-                        write(Jugadores,dato);
-                        end;
-                     end;
-             until (eleccion=1) or (eleccion=2); // repetir hasta escoger opcion valida(numeros)
+             Figura(x, y-1, NumFig, 3); // Dibuja una figura con un desplazamiento a lo largo del eje Y, siempre que ss = 3 y el índice de matriz no sea un espacio vacío (el borde del vidrio o el borde de las figuras), luego asigna pus = 1 y evita que la figura caiga un elemento antes del borde del vidrio
+              if Tope_Matriz = 0 then
+                begin
+                 Figura(x, y, NumFig, 0);  // borra el rastro que deja la figura
+                 y:= y-1;
+                end; // Se extrae una cifra de los elementos del campo de libro de pedidos vacío '. '
+          until Tope_Matriz = 1; // Ocurrió una colisión
 
-            until eleccion=2; // acabar ciclo si escoge que no desea continuar jugando
-      close(Jugadores);
+          Figura(x, y, NumFig, 4); // !!!!! Dibuja la figura actual que no se puede mover y escribe su posición en la matriz de elementos del libro de pedidos st []
+
+          Contador_Figuras:=Contador_Figuras + 1; // Contador de cifras para depuración
+
+
+          CalculoPuntaje;
+
+          paredes; // Procedimiento para dibujar elementos de toda la cartera de pedidos
+          Tope_Matriz:=0;
+          end;
+
+
+           (* Acabar por movimientos o tiempo *)
+          if (nro_mov<1) or (minutos<0) then  // si se acaban los movimientos se termina el juego
+          begin
+           perdiste:=true;
+            if mod_mov=true then
+              begin
+              textcolor(12); // color rojo
+              gotoxy(55,11);
+              writeln('                   '); // borrar mensaje anterior
+              gotoxy(55,11);
+             writeln('Sin Movimientos !');
+             end;
+          end;
+         until (Tope_Matriz = 1) OR (perdiste=true); // ¡Deja de repetir el ciclo principal del juego! Porque no hay espacio vacío.
+
+        textcolor(11); //color azul
+        gotoxy(55,15);
+        writeln ('JUEGO CONCLUIDO!'); // Escribir "Fin del juego"
+
+       (* observar matriz con los numeros al finalizar juego*)
+       contador:=0;
+       for i:=11 downto 1 do
+        begin
+           for j:=1 to 11 do
+            begin
+             contador:=contador+1;
+             write(MatrizPrincipal[j,i]);
+               if contador=11 then
+                begin
+                writeln;
+                contador:=0;
+                end;
+            end;
+       end;
+
+      repeat
+      gotoxy(55,17);
+      writeln('Deseas Continuar jugando? ');
+      gotoxy(55,18);
+      writeln('SI   [1]');
+      gotoxy(55,19);
+      writeln('NO   [2]');
+      gotoxy(55,20);
+      write('>>');
+      gotoxy(57,20);
+      readln(salir);
+      gotoxy(57,20);
+      write('     '); // si escoge opcion ivalida borra numero ingresado
+             if puntos>dato.score then
+               begin
+                 if enco = true then
+                  begin
+                  dato.score:=puntos;
+                  seek(jugadores,long2);
+                  write(Jugadores,dato);
+                  end;
+               end;
+       until salir in['1', '2']; // repetir hasta escoger opcion valida(numeros)
+
+      until salir='2'; // acabar ciclo si escoge que no desea continuar jugando
+     close(Jugadores);
 end;
 
 procedure portada;
  begin
   TextColor(White);      // Establecer las letras en blanco
 
-  GotoXY(39,3);  write('(c) COPYRIGHT Derechos Reservados');
+  GotoXY(25,3);  write('(c) COPYRIGHT Derechos Reservados');
 
-  GotoXY(15,5);  write('[][][] [][][] [][][] [][][]     []   []    []');
-  GotoXY(15,6);  write('  []   []       []   []   []    []    []  []');
-  GotoXY(15,7);  write('  []   [][][]   []   [][][]     []      []');
-  GotoXY(15,8);  write('  []   []       []   []    []   []    []  []');
-  GotoXY(15,9);  write('  []   [][][]   []   []      [] []  []      []');
+  GotoXY(15,5);  write('[][][] [][][] [][][] [][][]     []  []    []');
+  GotoXY(15,6);  write('  []   []       []   []   []    []   []  [] ');
+  GotoXY(15,7);  write('  []   [][][]   []   [][][]     []     []   ');
+  GotoXY(15,8);  write('  []   []       []   []    []   []   []  [] ');
+  GotoXY(15,9);  write('  []   [][][]   []   []      [] []  []    []');
 
   GotoXY(8,14); write('CUIDA TU AMBIENTE :D');
 
@@ -1313,11 +1295,12 @@ procedure portada;
   clrscr;// borrar pantalla
  end;
 procedure Menu;
-    var
-      tec : char;
-    begin
-    jugar:=true;
-    datosCorrectos:=false;
+var
+  tec : char;
+  jugar: boolean;
+ begin
+      jugar:=true;
+      datosCorrectos:=false;
     repeat
         clrscr;
         writeln('**** Menu Principal ****');
@@ -1339,40 +1322,28 @@ procedure Menu;
        '2' : InicioDeSesion(datosCorrectos);
        '3' : presentaordenados;
        '4' : VisualizarTop5;
-       '5' : begin
-               if (datosCorrectos=true) then
-                 begin
-                  if jugar=True then
-                   begin
-                   iniciar;
-                   end;
-                end
-                  else
-                    begin
-                     writeln(' USTED NO HA INICIADO SESION PRESIONE [ENTER]');
-                     readln;
+       '5' : if (datosCorrectos=true) then
+              if jugar=True then
+                iniciar
+              else
+                begin
+                  writeln(' USTED NO HA INICIADO SESION PRESIONE [ENTER]');
+                  readln;
                 end;
-            end;
        '6' : jugar:=false;
       end;
-
      until tec ='6';
     end;
 // INICIAR PROGRAMA PRINCIPAL
 begin
-     auxNombre:='';
-     auxEstado:='';
-     assign(jugadores,ubicacion);
-      {$I-} reset(jugadores); {$I+}   {abro el archivo}
-       if ioresult <> 0 then  {en caso de que el archivo no exista crea uno}
-        begin
-         rewrite(jugadores);
-        end;
-     TextBackground(Blue); // colocar todo en fondo azul
-     portada; // portada del proyecto
-     Menu;{Menu antes de comenzar a jugar}
-     writeln('FIN DEL PROGRAMA PRESIONE [ENTER]');
-     readln;
+   assign(jugadores,ubicacion);
+   {$I-} reset(jugadores); {$I+}   {abro el archivo}
+   if ioresult <> 0 then  {en caso de que el archivo no exista crea uno}
+    rewrite(jugadores);
 
+   TextBackground(Blue); // colocar todo en fondo azul
+   portada; // portada del proyecto
+   Menu; {Menu antes de comenzar a jugar}
+   writeln('FIN DEL PROGRAMA PRESIONE [ENTER]');
+   readln;
 End.
-
