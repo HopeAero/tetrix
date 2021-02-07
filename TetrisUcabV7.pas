@@ -157,7 +157,7 @@ begin
 
       repeat
                     salir:=true;
-                    writeln('Introduzca Su Correo Electronico');
+                    write(' Introduzca Su Correo Electronico = ');
                     readln(dato.correo);
                     cadena:=dato.correo;
 
@@ -238,6 +238,7 @@ begin
 
 
      dato.ID:=random(9999999)*3;
+     dato.score:=0;
      dato.password:=Cifrado(dato.password);
      Writeln('Su ID de Usuario es ',dato.ID);
      writeln('Desea guardar este usuario SI[1] O NO[2]');
@@ -1326,7 +1327,6 @@ var
                   writeln(' USTED NO HA INICIADO SESION PRESIONE [ENTER]');
                   readln;
                 end;
-       '6' : jugar:=false;
       end;
      until tec ='6';
     end;
