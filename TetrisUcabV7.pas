@@ -158,7 +158,7 @@ begin
 
       repeat
                     salir:=true;
-                    writeln('Introduzca Su Correo Electronico');
+                    write(' Introduzca Su Correo Electronico = ');
                     readln(dato.correo);
                     cadena:=dato.correo;
 
