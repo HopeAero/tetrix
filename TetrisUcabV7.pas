@@ -130,7 +130,6 @@ var nuevo:integer;
 
 begin
   // Entrada de datos
-
   valido:=true; // inicializar
   salir:=true;
   repeat
@@ -158,15 +157,16 @@ begin
 
       repeat
                     salir:=true;
-                    writeln('Introduzca Su Correo Electronico');
+                    write(' Introduzca Su Correo Electronico = ');
                     readln(dato.correo);
                     cadena:=dato.correo;
 
                     for i:=1 to length(cadena) do
-                      if (cadena[i]=',') OR (cadena[i]='(') OR (cadena[i]=')') OR (cadena[i]=':') OR (cadena[i]=';') OR (cadena[i]='<') OR (cadena[i]='>') OR (cadena[i]='/') then
+                      begin
+                      if (cadena[i]=',') OR (cadena[i]='(') OR (cadena[i]=')') OR (cadena[i]=':') OR (cadena[i]=';') OR (cadena[i]='<') OR (cadena[i]='>') OR (cadena[i]='/') or (cadena[i]=' ') then
                       	salir:=false
 
-
+                      end;
 
       until salir=true;
 
@@ -239,40 +239,56 @@ begin
 
 
      dato.ID:=random(9999999)*3;
-     dato.password:=Cifrado(dato.password);
      dato.score:=0;
+     dato.password:=Cifrado(dato.password);
      Writeln('Su ID de Usuario es ',dato.ID);
      writeln('Desea guardar este usuario SI[1] O NO[2]');
      repeat
       respuesta := readkey;
      until respuesta in['1','2'];
 
-     {$I-} reset(jugadores); {$I+}   {abro el archivo}
-     if ioresult <> 0 then  {en caso de que el archivo no exista crea uno}
-      begin
-        rewrite(jugadores);
-        seek(jugadores,0);
-        write(jugadores,dato);
-        close(jugadores);
-      end
-     else
-      begin
-        seek(jugadores,filesize(jugadores));  {Si el archivo existe lo guardara al final}
-        write(jugadores,dato);
-        close(jugadores);
-      end;
+         if respuesta='1' then
+           begin
+           Write('Desea registrar otro jugador(No[1]/Si[2]) ');
+             repeat
+              respuesta := readkey;
+              until respuesta in['1','2'];
+           clrscr;
+          {$I-} reset(jugadores); {$I+}   {abro el archivo}
+            if ioresult <> 0 then  {en caso de que el archivo no exista crea uno}
+             begin
+             rewrite(jugadores);
+             seek(jugadores,0);
+             write(jugadores,dato);
+             close(jugadores);
+             end
+              else
+                begin
+                 seek(jugadores,filesize(jugadores));  {Si el archivo existe lo guardara al final}
+                 write(jugadores,dato);
+                 close(jugadores);
+                 end;
 
-     clrscr;
-      end
-    else
-      Begin
-  	    Writeln;
-      	WriteLn('USTED SE HA REGISTRADO ANTERIORMENTE'); {Paso en caso de haberse registrado antes.}
-      	Write('Desea registrar otro jugador(No[1]/Si[2]) ');
-      	Readln(respuesta);
-        clrscr;
-  	  end;
-
+          clrscr;
+          end
+            else
+              begin
+                 Write('Desea registrar otro jugador(No[1]/Si[2]) ');
+                  repeat
+                   respuesta := readkey;
+                   until respuesta in['1','2'];
+               end;
+     end
+       else
+          Begin
+         Writeln;
+       	 WriteLn('USTED SE HA REGISTRADO ANTERIORMENTE'); {Paso en caso de haberse registrado antes.}
+      	 Write('Desea registrar otro jugador(No[1]/Si[2]) ');
+          repeat
+           respuesta := readkey;
+           until respuesta in['1','2'];
+         clrscr;
+          end;
    until (respuesta = '1');
    readkey;
 end;
@@ -746,8 +762,10 @@ begin
         Dibujar(x,y-1);
         Dibujar(x-1,y);
         Dibujar(x+1,y);
+        Dibujar(x,y-2);
         // Patron de forma 7
         //   [][][]
+        //     []
         //     []
     end;
 
@@ -756,7 +774,7 @@ begin
         Dibujar(x+1,y);
         Dibujar(x-1,y);
         Dibujar(x,y+1);
-
+        Dibujar(x,y+2);
         // Patron de forma 8
         //     []
         //     []
@@ -1139,8 +1157,11 @@ begin
         nuevafigura; // Aquí se sabrá qué forma será la próxima y actual
 
           (* Coordenadas de la aparicion de la nueva forma *)
+           if NumFig=8 then // si es la figura ocho, movemos su coordenada de aparicion un poco mas abajo
+             y:=9
+              else
+               y:= 11;
 
-        y:=11;
         x:= 6;
         Figura(x, y, NumFig, 3);
         velocidad:= 80-(linea * 3); //  velocidad del juego
@@ -1323,7 +1344,6 @@ var
                   writeln(' USTED NO HA INICIADO SESION PRESIONE [ENTER]');
                   readln;
                 end;
-       '6' : jugar:=false;
       end;
      until tec ='6';
     end;
